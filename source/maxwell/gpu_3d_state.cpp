@@ -127,7 +127,7 @@ void dkCmdBufBindBlendStates(DkCmdBuf obj, uint32_t firstId, DkBlendState const 
 			getBlendFactorSetting(state.dstColorBlendFactor), // FuncRgbDst
 			state.alphaBlendOp,                               // EquationAlpha
 			getBlendFactorSetting(state.srcAlphaBlendFactor), // FuncAlphaSrc
-			getBlendFactorSetting(state.dstColorBlendFactor)  // FuncAlphaDst
+			getBlendFactorSetting(state.dstAlphaBlendFactor)  // FuncAlphaDst
 		);
 	}
 }
