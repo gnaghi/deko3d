@@ -438,20 +438,16 @@ void dkImageLayoutInitialize(DkImageLayout* obj, DkImageLayoutMaker const* maker
 			obj->m_tileH = DkTileSize_TwoGobs; // Supported by nouveau (nvc0_miptree_init_layout_video) and official software
 		else if (obj->m_dimsPerLayer == 2)
 		{
-			// Calculate actual height, and multiply it by 1.5
 			uint32_t actualHeight = obj->m_dimensions[1] * obj->m_samplesY;
 			if (obj->m_blockH > 1)
 				actualHeight = adjustBlockSize(actualHeight, obj->m_blockH);
-			uint32_t heightAndHalf = actualHeight + actualHeight/2;
-			uint32_t heightAndHalfInGobs = (heightAndHalf + 7) / 8; // remember, one gob is 8 rows tall
-			obj->m_tileH = pickTileSize(heightAndHalfInGobs);
+			uint32_t heightInGobs = (actualHeight + 7) / 8; // remember, one gob is 8 rows tall
+			obj->m_tileH = pickTileSize(heightInGobs);
 		}
 		else if (obj->m_dimsPerLayer == 3)
 		{
-			// Calculate actual depth, and multiply it by 1.5
 			uint32_t actualDepth = obj->m_dimensions[2];
-			uint32_t depthAndHalf = actualDepth + actualDepth/2;
-			obj->m_tileD = pickTileSize(depthAndHalf);
+			obj->m_tileD = pickTileSize(actualDepth);
 		}
 	}
 
