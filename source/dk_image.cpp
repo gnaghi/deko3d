@@ -541,10 +541,10 @@ void dkCmdBufCopyImage(DkCmdBuf obj, DkImageView const* srcView, DkImageRect con
 
 	for (uint32_t z = 0; z < dstRect->depth; z ++)
 	{
-		uint32_t srcZ = z;
+		uint32_t srcZ = srcRect->z + z;
 		uint32_t dstZ = dstRect->z + z;
 		if (flags & DkBlitFlag_FlipZ)
-			srcZ = dstRect->depth - z - 1;
+			srcZ = srcRect->z + dstRect->depth - z - 1;
 		BlitCopyEngine(obj, srcInfo, dstInfo, params, srcZ, dstZ);
 	}
 }
@@ -920,7 +920,7 @@ void dkCmdBufCopyImageToBuffer(DkCmdBuf obj, DkImageView const* srcView, DkImage
 			uint32_t srcZ = srcRect->z + z;
 			uint32_t dstZ = z;
 			if (flags & DkBlitFlag_FlipZ)
-				srcZ = srcRect->depth - z - 1;
+				srcZ = srcRect->z + srcRect->depth - z - 1;
 			BlitCopyEngine(obj, srcInfo, dstInfo, params, srcZ, dstZ);
 		}
 	}
