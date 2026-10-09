@@ -590,8 +590,8 @@ void dkCmdBufBlitImage(DkCmdBuf obj, DkImageView const* srcView, DkImageRect con
 		uint32_t blockH = srcView->pImage->m_blockH;
 		params.srcX = adjustBlockSize(params.srcX, blockW);
 		params.srcY = adjustBlockSize(params.srcY, blockH);
-		params.srcX = adjustBlockSize(params.dstX, blockW);
-		params.srcY = adjustBlockSize(params.dstY, blockH);
+		params.dstX = adjustBlockSize(params.dstX, blockW);
+		params.dstY = adjustBlockSize(params.dstY, blockH);
 		params.width = adjustBlockSize(params.width, blockW);
 		params.height = adjustBlockSize(params.height, blockH);
 		srcW = adjustBlockSize(srcW, blockW);
