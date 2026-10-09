@@ -67,7 +67,12 @@ void CmdBuf::clear()
 	// Transfer all used chunks into the free list
 	if (m_ctrlChunkCur)
 	{
-		m_ctrlChunkCur->m_next = m_ctrlChunkFree;
+		// Used chunks are chained together (see appendCtrlCmd), so splice
+		// the whole chain in front of the free list instead of just its head
+		CtrlMemChunk* last = m_ctrlChunkCur;
+		while (last->m_next)
+			last = last->m_next;
+		last->m_next = m_ctrlChunkFree;
 		m_ctrlChunkFree = m_ctrlChunkCur;
 		m_ctrlChunkCur = nullptr;
 	}
