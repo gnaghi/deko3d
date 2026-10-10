@@ -72,7 +72,7 @@ engine _3D 0xB197;
 0x0E0 TfbBuffer array[4] (
 	0x00 Enable bool;
 	0x01 Addr iova;
-	0x03 Size;   // in bytes
+	0x03 Bytes;  // buffer size (a member cannot be named Size: __array::Size)
 	0x04 Offset; // current write offset in bytes
 	0x08 next;
 );

@@ -164,6 +164,10 @@ DK_CONSTEXPR void dkDeviceMakerDefaults(DkDeviceMaker* maker)
 #define DK_MAX_VERTEX_ATTRIBS 32
 #define DK_MAX_VERTEX_BUFFERS 16
 #define DK_IMAGE_LINEAR_STRIDE_ALIGNMENT 32
+#define DK_NUM_TRANSFORM_FEEDBACK_BUFFERS 4
+#define DK_MAX_TRANSFORM_FEEDBACK_VARYINGS 128
+#define DK_TRANSFORM_FEEDBACK_BUF_ALIGNMENT 4
+#define DK_TRANSFORM_FEEDBACK_OFFSETS_SIZE (16*DK_NUM_TRANSFORM_FEEDBACK_BUFFERS)
 
 enum
 {
@@ -1150,6 +1154,20 @@ typedef enum DkIdxFormat
 	DkIdxFormat_Uint32 = 2,
 } DkIdxFormat;
 
+// Output slot of a 32-bit word captured by transform feedback: the address of the
+// vertex shader output attribute divided by 4 (deko3d/uam attribute map)
+#define DK_TFB_SLOT_POSITION(component) (0x1C + (component))                     // gl_Position
+#define DK_TFB_SLOT_GENERIC(location, component) (0x20 + 4*(location) + (component)) // layout(location) out
+#define DK_TFB_SLOT_SKIP 0xFF // leave the word untouched (unverified on hardware)
+
+typedef struct DkTransformFeedbackLayout
+{
+	uint32_t stride;      // bytes per captured vertex, multiple of 4
+	uint32_t stream;      // geometry shader stream captured (0 without a geometry shader)
+	uint32_t numVaryings; // 32-bit words captured per vertex (<= DK_MAX_TRANSFORM_FEEDBACK_VARYINGS)
+	uint8_t varyings[DK_MAX_TRANSFORM_FEEDBACK_VARYINGS]; // output slot of each word, see DK_TFB_SLOT_*
+} DkTransformFeedbackLayout;
+
 typedef struct DkDrawIndirectData
 {
 	uint32_t vertexCount;
@@ -1319,6 +1337,13 @@ void dkCmdBufDraw(DkCmdBuf obj, DkPrimitive prim, uint32_t vertexCount, uint32_t
 void dkCmdBufDrawIndirect(DkCmdBuf obj, DkPrimitive prim, DkGpuAddr indirect);
 void dkCmdBufDrawIndexed(DkCmdBuf obj, DkPrimitive prim, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance);
 void dkCmdBufDrawIndexedIndirect(DkCmdBuf obj, DkPrimitive prim, DkGpuAddr indirect);
+void dkCmdBufBindTransformFeedbackLayouts(DkCmdBuf obj, DkTransformFeedbackLayout const* const layouts[], uint32_t numLayouts);
+void dkCmdBufBindTransformFeedbackBuffers(DkCmdBuf obj, uint32_t firstId, DkBufExtents const buffers[], uint32_t numBuffers);
+void dkCmdBufBeginTransformFeedback(DkCmdBuf obj);
+void dkCmdBufEndTransformFeedback(DkCmdBuf obj);
+void dkCmdBufSaveTransformFeedbackOffsets(DkCmdBuf obj, DkGpuAddr savedOffsets);
+void dkCmdBufResumeTransformFeedback(DkCmdBuf obj, DkGpuAddr savedOffsets);
+void dkCmdBufDrawTransformFeedback(DkCmdBuf obj, DkPrimitive prim, uint32_t stride, DkGpuAddr savedOffsets, uint32_t bufferId);
 void dkCmdBufDispatchCompute(DkCmdBuf obj, uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ);
 void dkCmdBufDispatchComputeIndirect(DkCmdBuf obj, DkGpuAddr indirect);
 void dkCmdBufPushConstants(DkCmdBuf obj, DkGpuAddr uboAddr, uint32_t uboSize, uint32_t offset, uint32_t size, const void* data);
