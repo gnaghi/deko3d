@@ -66,6 +66,24 @@ engine _3D 0xB197;
 0x0dd Unknown0dd;
 0x0df RasterizerEnable bool;
 
+// Transform feedback (stream output). Offsets from envytools rnndb
+// graph/gf100_3d.xml (TFB stripe 0x0380, TFB_STREAM 0x0700, TFB_ENABLE 0x0744,
+// TFB_VARYING_LOCS 0x2800; byte offsets / 4), as programmed by nouveau nvc0.
+0x0E0 TfbBuffer array[4] (
+	0x00 Enable bool;
+	0x01 Addr iova;
+	0x03 Size;   // in bytes
+	0x04 Offset; // current write offset in bytes
+	0x08 next;
+);
+
+0x1C0 TfbLayout array[4] (
+	0x00 Stream;       // geometry shader stream captured by the buffer
+	0x01 VaryingCount; // 32-bit words captured per vertex
+	0x02 Stride;       // bytes per vertex
+	0x04 next;
+);
+0x1D1 TfbEnable bool;
 0x1d3 Unknown1d3;
 
 0x1DF SetShaderLocalMemoryWindow;
@@ -364,6 +382,7 @@ engine _3D 0xB197;
 	16    Volume bool; //???
 );
 0x48D LinkedTsc bool; //???
+0x48F DrawTfbBytes; // vertex count of a draw from a TFB buffer = bytes / DrawTfbStride
 
 0x4A2 InvalidateTextureDataCacheNoWfi bits (
 	0 Lines enum (
@@ -407,6 +426,7 @@ engine _3D 0xB197;
 	8 Always;
 );
 
+0x4C6 DrawTfbStride;
 0x4C7 BlendConstant array[4] float;
 
 0x4D8 ColorBlendEnable array[8] bool;
@@ -418,6 +438,8 @@ engine _3D 0xB197;
 0x4E5 StencilFrontFuncRef;
 0x4E6 StencilFrontFuncMask;
 0x4E7 StencilFrontMask;
+
+0x4E9 DrawTfbBase;
 
 0x4EB SetWindowOrigin bits (
 	// Value of special register 0x12 (SR_Y_DIRECTION)
@@ -673,6 +695,7 @@ engine _3D 0xB197;
 	2 FlushDisable;
 	3 ReductionEnable;
 	4 FenceEnable;
+	5..7 Index; // stream (PrimitivesGenerated...) or TFB buffer (TransformFeedbackOffset)
 	9..11 ReductionOp enum (
 		0 Add;
 		1 Min;
@@ -790,6 +813,10 @@ engine _3D 0xB197;
 0x982 SetBindlessTexture bits (
 	0..2 ConstantBufferSlotSelect;
 );
+
+// 32 words per TFB buffer: one byte per captured word, the output slot to
+// capture (attribute address / 4)
+0xA00 TfbVaryingLocs array[128];
 
 // Shadow scratch registers
 
