@@ -164,10 +164,13 @@ void dkCmdBufDrawTransformFeedback(DkCmdBuf obj, DkPrimitive prim, uint32_t stri
 	DK_DEBUG_BAD_INPUT(bufferId >= DK_NUM_TRANSFORM_FEEDBACK_BUFFERS);
 	DK_DEBUG_BAD_INPUT(stride == 0 || stride > 0xFFF);
 	CmdBufWriter w{obj};
-	w.reserve(7);
+	w.reserve(9);
 
 	// Vertex count = bytes written to the buffer / stride, computed by the GPU
-	// from the saved offset of the buffer (nouveau nvc0_draw_stream_output)
+	// from the saved offset of the buffer (nouveau nvc0_draw_stream_output).
+	// nouveau does not reset DrawArraysFirst, left over from the last
+	// dkCmdBufDraw: clear it in case the hardware adds it to the first vertex.
+	w << Cmd(3D, DrawArraysFirst{}, 0);
 	w << Cmd(3D, VertexBeginGl{}, prim);
 	w << Cmd(3D, DrawTfbBase{}, 0);
 	w << Cmd(3D, DrawTfbStride{}, stride);
