@@ -34,4 +34,4 @@ ConditionalZcullInvalidate::
 
 .invalidateZcull
 	*r1 to mem
-	InvalidateZcullNoWfi'0x19 to addr'mem
+	ClearZcullRegion'0x19 to addr'mem

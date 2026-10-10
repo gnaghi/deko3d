@@ -394,7 +394,7 @@ engine _3D 0xB197;
 
 0x4A4 Unknown4a4;
 
-0x4B2 InvalidateZcullNoWfi; // Theoretical
+0x4B2 ClearZcullRegion; // NVB197_CLEAR_ZCULL_REGION: bit 0 Z, bit 4 stencil (0 = nothing cleared)
 0x4B3 DepthTestEnable bool;
 
 0x4B6 Unknown4b6 array[2];
@@ -650,6 +650,8 @@ engine _3D 0xB197;
 	11     Unknown11 bool;
 	12..13 Unknown12;
 );
+
+0x656 InvalidateZcull; // NVB197_INVALIDATE_ZCULL
 
 0x65A ZcullUnknown65a;
 0x65B ZcullTestMask bits (

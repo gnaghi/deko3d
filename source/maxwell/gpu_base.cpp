@@ -99,7 +99,7 @@ void dkCmdBufBarrier(DkCmdBuf obj, DkBarrier mode, uint32_t invalidateFlags)
 	}
 
 	if (invalidateFlags & DkInvalidateFlags_Zcull)
-		w << CmdInline(3D, InvalidateZcullNoWfi{}, 0);
+		w << CmdInline(3D, InvalidateZcull{}, 0);
 
 	if (invalidateFlags & DkInvalidateFlags_L2Cache)
 	{
