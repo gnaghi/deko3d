@@ -46,7 +46,7 @@ namespace dk::detail
 		{
 			flush();
 			maxwell::CmdWord *pos = getPos();
-			if ((pos + size) >= m_cmdBuf->m_cmdEnd)
+			if ((pos + size) > m_cmdBuf->m_cmdEnd)
 				m_pos = pos = m_cmdBuf->requestCmdMem(size);
 			return pos;
 		}
