@@ -68,8 +68,45 @@ void CodeSegMgr::freeSpace(DkGpuAddr addr, uint32_t size) noexcept
 {
 	uint32_t bigPageSize = getDevice()->getGpuInfo().bigPageSize;
 	uint32_t numPages = (size + bigPageSize - 1) / bigPageSize;
+	uint32_t offset = uint32_t((addr - m_segmentIova) / bigPageSize);
 	MutexHolder m{m_mutex};
-	// TODO
-	(void)bigPageSize;
-	(void)numPages;
+
+	// The free list is kept sorted by offset: find the first node placed after the freed range.
+	Node *next;
+	for (next = m_nodeList.m_next; next != &m_nodeList; next = next->m_next)
+		if (next->m_offset > offset)
+			break;
+	Node *prev = next->m_prev;
+
+	// Coalesce with the previous node if the freed range directly follows it
+	if (prev != &m_nodeList && prev->m_offset + prev->m_numPages == offset)
+	{
+		prev->m_numPages += numPages;
+
+		// The grown node might now also be adjacent to the next one
+		if (next != &m_nodeList && prev->m_offset + prev->m_numPages == next->m_offset)
+		{
+			prev->m_numPages += next->m_numPages;
+			unlinkNode(next);
+			freeNode(next);
+		}
+		return;
+	}
+
+	// Coalesce with the next node if the freed range directly precedes it
+	if (next != &m_nodeList && offset + numPages == next->m_offset)
+	{
+		next->m_offset = offset;
+		next->m_numPages += numPages;
+		return;
+	}
+
+	// Otherwise, insert a new node between prev and next
+	Node *node = allocNode();
+	if (node) // above already errored out if this failed
+	{
+		node->m_offset   = offset;
+		node->m_numPages = numPages;
+		linkNode(node, prev);
+	}
 }
