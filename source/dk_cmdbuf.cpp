@@ -287,6 +287,12 @@ void dkCmdBufAddMemory(DkCmdBuf obj, DkMemBlock mem, uint32_t offset, uint32_t s
 	obj->addMemory(mem, offset, size);
 }
 
+uint32_t dkCmdBufGetFreeSpace(DkCmdBuf obj)
+{
+	DK_ENTRYPOINT(obj);
+	return obj->getFreeSpace();
+}
+
 DkCmdList dkCmdBufFinishList(DkCmdBuf obj)
 {
 	DK_ENTRYPOINT(obj);

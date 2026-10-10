@@ -79,6 +79,7 @@ public:
 	constexpr bool isDirty() const noexcept { return m_cmdStart != m_cmdPos; }
 	constexpr bool isCapturing() const noexcept { return m_isCapturing; }
 	constexpr uint32_t getCmdOffset() const noexcept { return uint32_t((char*)(void*)m_cmdPos - (char*)(void*)m_cmdChunkStart); }
+	constexpr uint32_t getFreeSpace() const noexcept { return m_cmdPos < m_cmdEnd ? uint32_t((char*)(void*)m_cmdEnd - (char*)(void*)m_cmdPos) : 0; }
 	constexpr size_t getCtrlSpaceFree() const noexcept { return size_t((char*)(void*)m_ctrlEnd-(char*)(void*)m_ctrlPos); }
 	maxwell::CmdWord* requestCmdMem(uint32_t size);
 	CtrlCmdHeader* appendCtrlCmd(size_t size);

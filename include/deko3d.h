@@ -109,6 +109,10 @@ typedef uint32_t DkResHandle;
 typedef void (*DkDebugFunc)(void* userData, const char* context, DkResult result, const char* message);
 typedef DkResult (*DkAllocFunc)(void* userData, size_t alignment, size_t size, void** out);
 typedef void (*DkFreeFunc)(void* userData, void* mem);
+// Called while a command is being recorded, when the current slice of command memory
+// cannot hold it. The callback must call dkCmdBufAddMemory with at least minReqSize
+// bytes and return; it must not record commands, finish or clear the command buffer,
+// or submit/wait on the queue. Use dkCmdBufGetFreeSpace to switch slices proactively.
 typedef void (*DkCmdBufAddMemFunc)(void* userData, DkCmdBuf cmdbuf, size_t minReqSize);
 
 enum
@@ -1253,6 +1257,7 @@ void dkVariableSignal(DkVariable const* obj, DkVarOp op, uint32_t value);
 DkCmdBuf dkCmdBufCreate(DkCmdBufMaker const* maker);
 void dkCmdBufDestroy(DkCmdBuf obj);
 void dkCmdBufAddMemory(DkCmdBuf obj, DkMemBlock mem, uint32_t offset, uint32_t size);
+uint32_t dkCmdBufGetFreeSpace(DkCmdBuf obj); // bytes left in the current slice; a command strictly smaller than this never triggers cbAddMem
 DkCmdList dkCmdBufFinishList(DkCmdBuf obj);
 void dkCmdBufClear(DkCmdBuf obj);
 void dkCmdBufBeginCaptureCmds(DkCmdBuf obj, uint32_t* storage, uint32_t max_words);

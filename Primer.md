@@ -302,6 +302,7 @@ void dkCmdBufMakerDefaults(DkCmdBufMaker* maker, DkDevice device);
 DkCmdBuf dkCmdBufCreate(DkCmdBufMaker const* maker);
 void dkCmdBufDestroy(DkCmdBuf obj);
 void dkCmdBufAddMemory(DkCmdBuf obj, DkMemBlock mem, uint32_t offset, uint32_t size);
+uint32_t dkCmdBufGetFreeSpace(DkCmdBuf obj);
 DkCmdList dkCmdBufFinishList(DkCmdBuf obj);
 void dkCmdBufClear(DkCmdBuf obj);
 void dkCmdBufCallList(DkCmdBuf obj, DkCmdList list);
@@ -319,6 +320,8 @@ If the current slice of backing memory runs out of space during recording, eithe
 - Otherwise, the `cbAddMem` callback is called, which is expected to in turn call `dkCmdBufAddMemory` in order to resolve the situation. If the callback doesn't add enough memory, a fatal error is raised.
 
 This mechanism is intended to be used for command buffers backed by dynamic memory, so that they can refill themselves with fresh new memory as needed.
+
+> **Warning**: `cbAddMem` is invoked in the middle of recording a command, and the only thing it is allowed to do is call `dkCmdBufAddMemory` (with a slice of at least `minReqSize` bytes) and return. In particular it must not record further commands, call `dkCmdBufFinishList`/`dkCmdBufClear`, or submit work to and wait on a queue. Applications that want to react before running out of memory (e.g. to submit the commands recorded so far and recycle their memory) can query `dkCmdBufGetFreeSpace`, which returns the number of bytes still available in the current slice: as long as the next command is strictly smaller than this value, `cbAddMem` will not be called. In capture mode, the value refers to the capture storage instead.
 
 Command lists can be reused by other command lists as well. When `dkCmdBufCallList` is called, a reference to the specified `DkCmdList` is inserted into the currently recording command list. This is useful for recording a certain set of commands only once, and afterwards calling this sublist as many times as desired from a parent command list. This also means that sublists need to stay valid for the total lifetime of their parent(s).
 

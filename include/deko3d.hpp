@@ -181,6 +181,7 @@ namespace dk
 	{
 		DK_HANDLE_COMMON_MEMBERS(CmdBuf);
 		void addMemory(DkMemBlock mem, uint32_t offset, uint32_t size);
+		uint32_t getFreeSpace();
 		DkCmdList finishList();
 		void clear();
 		void beginCaptureCmds(uint32_t* storage, uint32_t max_words);
@@ -651,6 +652,11 @@ namespace dk
 	inline void CmdBuf::addMemory(DkMemBlock mem, uint32_t offset, uint32_t size)
 	{
 		::dkCmdBufAddMemory(*this, mem, offset, size);
+	}
+
+	inline uint32_t CmdBuf::getFreeSpace()
+	{
+		return ::dkCmdBufGetFreeSpace(*this);
 	}
 
 	inline DkCmdList CmdBuf::finishList()
